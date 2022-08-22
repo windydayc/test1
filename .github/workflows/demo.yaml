@@ -8,7 +8,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: scripts
+        working-directory: tmpfiles
     steps:
       - run: wget https://github.com/sealerio/sealer/releases/download/v0.8.5/sealer-v0.8.5-linux-amd64.tar.gz
       - run: tar -zxvf sealer-v0.8.5-linux-amd64.tar.gz -C /usr/bin
