@@ -1,11 +1,6 @@
 name: Sealer Demo
 
-on:
-  push:
-    branches:
-      - master
-    paths:
-      - 'files/**'
+on: [push]
 
 jobs:
   Sealer-Demo-1:
