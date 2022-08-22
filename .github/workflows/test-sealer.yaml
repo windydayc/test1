@@ -34,6 +34,5 @@ jobs:
 
       - name: Run sealer
         run: |
-          wget https://github.com/sealerio/sealer/releases/download/v0.8.5/sealer-v0.8.5-linux-amd64.tar.gz
-          sudo tar -zxvf sealer-v0.8.5-linux-amd64.tar.gz -C /usr/bin
-          sealer version
+          sudo wget https://github.com/sealerio/sealer/releases/download/v0.8.5/sealer-v0.8.5-linux-amd64.tar.gz && sudo tar -zxvf sealer-v0.8.5-linux-amd64.tar.gz -C /usr/bin
+          sudo sealer version
