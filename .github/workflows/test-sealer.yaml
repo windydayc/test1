@@ -24,19 +24,7 @@ jobs:
         with:
           path: src/github.com/windydayc/test1
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
-
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        working-directory: src/github.com/windydayc/test1/files
-        run: |
-          ls -l
-          echo Add other actions to build,
-          echo test, and deploy your project.
-
-      - name: Run sealer
+      - name: Install sealer
         run: |
           sudo wget https://github.com/sealerio/sealer/releases/download/v0.8.5/sealer-v0.8.5-linux-amd64.tar.gz && sudo tar -zxvf sealer-v0.8.5-linux-amd64.tar.gz -C /usr/bin
           sudo sealer version
@@ -46,4 +34,4 @@ jobs:
         run: |
           sudo sealer login registry-1.docker.io -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
           sudo sealer build -t registry-1.docker.io/${{ secrets.DOCKERHUB_USERNAME }}/oy-test:latest -f Kubefile .
-          sudo sealer push registry-1.docker.io/${{ secrets.DOCKERHUB_USERNAME }}/oy:latest
+          sudo sealer push registry-1.docker.io/${{ secrets.DOCKERHUB_USERNAME }}/oy-test:latest
