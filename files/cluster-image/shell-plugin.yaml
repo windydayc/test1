@@ -7,4 +7,4 @@ spec:
   action: PostInstall
   'on': master
   data: |
-    kubectl label node $HOSTNAME openyurt.io/is-edge-worker=false --overwrite
+    kubectl label node $HOSTNAME openyurt.io/is-edge-worker=false
