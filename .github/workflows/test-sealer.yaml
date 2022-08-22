@@ -15,12 +15,12 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
 
       # Runs a single command using the runners shell
       - name: Run a one-line script
@@ -35,5 +35,5 @@ jobs:
       - name: Run sealer
         run: |
           wget https://github.com/sealerio/sealer/releases/download/v0.8.5/sealer-v0.8.5-linux-amd64.tar.gz
-          tar -zxvf sealer-v0.8.5-linux-amd64.tar.gz -C /usr/bin
+          sudo tar -zxvf sealer-v0.8.5-linux-amd64.tar.gz -C /usr/bin
           sealer version
