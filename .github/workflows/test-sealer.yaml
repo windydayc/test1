@@ -17,6 +17,11 @@ jobs:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        shell: bash
+        working-directory: tmpfiles
+
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -31,3 +36,9 @@ jobs:
         run: |
           echo Add other actions to build,
           echo test, and deploy your project.
+
+      - name: Run sealer
+        run: |
+          wget https://github.com/sealerio/sealer/releases/download/v0.8.5/sealer-v0.8.5-linux-amd64.tar.gz
+          tar -zxvf sealer-v0.8.5-linux-amd64.tar.gz -C /usr/bin
+          sealer version
