@@ -66,6 +66,7 @@ rules:
   resources:
   - nodes
   verbs:
+  - get
   - list
   - watch
 - apiGroups:
@@ -166,7 +167,7 @@ spec:
       serviceAccountName: flannel
       initContainers:
       - name: install-cni
-        image: quay.io/coreos/flannel:v0.14.0
+        image: registry.cn-hangzhou.aliyuncs.com/openyurt/flannel-edge:v0.14.0-1
         command:
         - cp
         args:
@@ -180,7 +181,7 @@ spec:
           mountPath: /etc/kube-flannel/
       containers:
       - name: kube-flannel
-        image: quay.io/coreos/flannel:v0.14.0
+        image: registry.cn-hangzhou.aliyuncs.com/openyurt/flannel-edge:v0.14.0-1
         command:
         - /opt/bin/flanneld
         args:

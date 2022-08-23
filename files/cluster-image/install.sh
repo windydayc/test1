@@ -16,22 +16,33 @@
 
 echo "[INFO] Start installing OpenYurt."
 
-kubectl apply -f manifests/kube-flannel.yaml
+# Adjust kube-controller-manager
+./kube-controller-manager.sh
 
-## install openyurt components
-kubectl apply -f manifests/yurt-controller-manager.yaml
-kubectl apply -f manifests/yurt-tunnel-agent.yaml
-kubectl apply -f manifests/yurt-tunnel-server.yaml
-kubectl apply -f manifests/yurt-app-manager.yaml
-kubectl apply -f manifests/yurthub-cfg.yaml
+# Adjust kube-apiserver
+./kube-apiserver.sh
 
-## configure coredns
-kubectl scale --replicas=0 deployment/coredns -n kube-system
+# Adjust coreDNS
 kubectl apply -f manifests/coredns.yaml
+kubectl scale --replicas=0 deployment/coredns -n kube-system
 kubectl annotate svc kube-dns -n kube-system openyurt.io/topologyKeys='openyurt.io/nodepool'
 
-## configure kube-proxy
-str_patch='{"data": {"config.conf": "apiVersion: kubeproxy.config.k8s.io/v1alpha1\nbindAddress: '${bind_address}'\nfeatureGates:\n  EndpointSliceProxying: true\nbindAddressHardFail: false\nclusterCIDR: '${cluster_cidr}'\nconfigSyncPeriod: 0s\nenableProfiling: false\nipvs:\n  minSyncPeriod: 0s\n  strictARP: false\nkind: KubeProxyConfiguration\nmode: ipvs\nudpIdleTimeout: 0s\nwinkernel:\n  enableDSR: false\nkubeconfig.conf:"}}'
-kubectl patch cm -n kube-system kube-proxy --patch "${str_patch}"  && kubectl delete pod --selector k8s-app=kube-proxy -n kube-system
+# Adjust kube-proxy
+kubectl get cm -n kube-system kube-proxy -oyaml | sed 's|kubeconfig: \/var\/lib\/kube-proxy\/kubeconfig.conf|#kubeconfig: \/var\/lib\/kube-proxy\/kubeconfig.conf|g' - | kubectl apply -f -
+
+# Setup yurt-controller-manager
+kubectl apply -f manifests/yurt-controller-manager.yaml
+
+# Setup yurt-tunnel
+kubectl apply -f manifests/yurt-tunnel-server.yaml
+kubectl apply -f manifests/yurt-tunnel-agent.yaml
+kubectl apply -f manifests/yurt-tunnel-dns.yaml
+
+# Setup yurt-app-manager
+helm repo add openyurt https://openyurtio.github.io/openyurt-helm \
+  && helm install openyurt/yurt-app-manager yurt-app-manager
+
+# Setup Yurthub Settings
+kubectl apply -f manifests/yurthub-cfg.yaml
 
 echo "[INFO] OpenYurt is successfully installed."

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="c2bcf287-f4ba-4e7d-956d-ff1840da81ba" name="10.10.102.155">
+        <fileTransfer rootFolder="/root/zengfeng/workspace/tmp/demo/test" accessType="SFTP" host="10.10.102.155" port="22" sshConfigId="90f1dfce-ab41-43e8-8b4e-dc59adfc9ca6" sshConfig="root@10.10.102.155:22 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

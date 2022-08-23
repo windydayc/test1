@@ -1,29 +1,27 @@
 FROM kubernetes:v1.21.14-alpine
 
 ## flannel
-RUN wget https://aliacs-edge-k8s-cn-hangzhou.oss-cn-hangzhou.aliyuncs.com/public/pkg/openyurt/cni/v0.8.0/cni-plugins-linux-amd64-v0.8.0.tgz && mkdir cni && tar -xf cni-plugins-linux-amd64-v0.8.0.tgz -C cni/
+RUN wget https://aliacs-edge-k8s-cn-hangzhou.oss-cn-hangzhou.aliyuncs.com/public/pkg/openyurt/cni/v0.8.0/cni-plugins-linux-amd64-v0.8.0.tgz \
+  && mkdir cni \
+  && tar -xf cni-plugins-linux-amd64-v0.8.0.tgz -C cni/
+
 COPY init-kube.sh /scripts/
 COPY kube-flannel.yaml manifests/
-CMD kubectl apply -f manifests/kube-flannel.yaml
-
-## label node
-COPY shell-plugin.yaml plugins
 
 ## helm
-COPY helm-v3.6.0-linux-amd64.tar.gz .
-RUN tar zxvf helm-v3.6.0-linux-amd64.tar.gz && cp linux-amd64/helm /usr/bin && chmod +x /usr/bin/helm
-
-## openyurt
-COPY charts/openyurt charts
-# install yurt-controller-manager, yurt-tunnel-server, yurt-tunnel-agent
-CMD helm install charts/openyurt --generate-name
-# install yurt-app-manager
-CMD helm repo add openyurt https://openyurtio.github.io/openyurt-helm && helm install openyurt/yurt-app-manager --generate-name
-
+RUN wget https://get.helm.sh/helm-v3.6.0-linux-amd64.tar.gz \
+    && tar zxvf helm-v3.6.0-linux-amd64.tar.gz && cp linux-amd64/helm /usr/bin \
+    && chmod +x /usr/bin/helm
 
 # openyurt
-#COPY yamls/* manifests
-#COPY install.sh .
-#RUN chmod 777 install.sh
+COPY openyurt-plugin.yaml plugins
+COPY coredns.yaml manifests
+COPY yurt-tunnel-dns.yaml manifests
+COPY yurthub-cfg.yaml manifests
 
-#CMD bind_address=${BindAddress} cluster_cidr=${ClusterCIDR} ./install.sh
+COPY install.sh .
+COPY kube-apiserver.sh .
+COPY kube-controller-manager.sh .
+RUN chmod 777 install.sh kube-apiserver.sh kube-controller-manager.sh
+
+CMD kubectl apply -f manifests/kube-flannel.yaml

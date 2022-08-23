@@ -1,40 +1,34 @@
 name: Test Sealer2
 
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    tags:
+      - 'v*' # Push events to matching v*, i.e. v0.7.0
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+env:
+  ALI_REGISTRY: registry.cn-hangzhou.aliyuncs.com/openyurt
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
         with:
           path: src/github.com/windydayc/test1
 
-#      - name: Install sealer
-#        run: |
-#          sudo wget https://github.com/sealerio/sealer/releases/download/v0.8.5/sealer-v0.8.5-linux-amd64.tar.gz && sudo tar -zxvf sealer-v0.8.5-linux-amd64.tar.gz -C /usr/bin
-#          sudo sealer version
+      - name: Install sealer
+        run: |
+          sudo wget https://github.com/sealerio/sealer/releases/download/v0.8.5/sealer-v0.8.5-linux-amd64.tar.gz && sudo tar -zxvf sealer-v0.8.5-linux-amd64.tar.gz -C /usr/bin
+          sudo sealer version
 
-      - name: Make Kubefile Context
+      - name: Create Kubefile Context
         working-directory: src/github.com/windydayc/test1
         run: |
           mkdir context
           cp -r files/cluster-image/* context/ 
           cp -r charts context/
+          cp config/setup/* context/
           ls -l
 
       - name: Check Context Working-directory
@@ -42,9 +36,18 @@ jobs:
         run: |
           ls -l
 
-#      - name: Build Cluster Image and Push to Dockerhub
-#        working-directory: src/github.com/windydayc/test1/context
-#        run: |
-#          sudo sealer login registry-1.docker.io -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
-#          sudo sealer build -t registry-1.docker.io/${{ secrets.DOCKERHUB_USERNAME }}/oy-test:latest -f Kubefile .
-#          sudo sealer push registry-1.docker.io/${{ secrets.DOCKERHUB_USERNAME }}/oy-test:latest
+      - name: Build Cluster Image
+        working-directory: src/github.com/windydayc/test1/context
+        run: sudo sealer build -t oy-test:latest -f Kubefile .
+
+      - name: Push Cluster Image to Dockerhub
+        run: |
+          sudo sealer login registry-1.docker.io -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
+          sudo sealer tag oy-test:latest registry-1.docker.io/${{ secrets.DOCKERHUB_USERNAME }}/oy-test:latest
+          sudo sealer push registry-1.docker.io/${{ secrets.DOCKERHUB_USERNAME }}/oy-test:latest
+
+      - name: Push Cluster Image to Ali Registry
+        run: |
+          sudo sealer login ${{ env.ALI_REGISTRY }} -u ${{ secrets.ALI_REGISTRY_USERNAME }} -p ${{ secrets.ALI_REGISTRY_PASSWORD }}
+          sudo sealer tag oy-test:latest ${{ env.ALI_REGISTRY }}/${{ secrets.ALI_REGISTRY_USERNAME }}/oy-test:latest
+          sudo sealer push ${{ env.ALI_REGISTRY }}/${{ secrets.ALI_REGISTRY_USERNAME }}/oy-test:latest
